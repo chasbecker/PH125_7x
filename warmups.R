@@ -5,4 +5,4 @@ print(paste("Nice to meet you", urName))
 
 # that's it for now
 
-print("This will trigger a catastrophe.")
+print(c("This will trigger a catastrophe", toString(4/87)))
