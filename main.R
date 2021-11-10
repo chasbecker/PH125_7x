@@ -214,3 +214,8 @@ modau_cor <- cor( female_heights$mother, female_heights$daughter)
 
 moda_slope <- modau_cor * ( daughter_sd/mother_sd )
 moda_intercept <- daughter_mean - ( moda_slope * mother_mean )
+
+r_squared <- modau_cor^2
+
+if_mother <- 60
+expected_daughter <- moda_intercept + ( if_mother * moda_slope )
