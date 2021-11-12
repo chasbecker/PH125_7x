@@ -219,3 +219,7 @@ r_squared <- modau_cor^2
 
 if_mother <- 60
 expected_daughter <- moda_intercept + ( if_mother * moda_slope )
+
+# 11/10/2021 Linear Models Overview
+rm(list=ls())
+library(tidyverse)
