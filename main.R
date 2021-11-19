@@ -396,3 +396,24 @@ summary( reg_p1 )
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+rm(list=ls())
+set.seed(1989, sample.kind = "Rounding")
+library(tidyverse)
+library(HistData)
+data("GaltonFamilies")
+options(digits = 3)
+
+female_heights <-GaltonFamilies %>%
+                    filter( gender == "female" ) %>%
+                    group_by(family) %>%
+                    sample_n(1) %>%
+                    ungroup() %>%
+                    select( mother, childHeight ) %>%
+                    rename( daughter = childHeight )
+
+r1 <- lm( female_heights$mother ~ female_heights$daughter )
+summary( r1 )
+
+mh <- data.frame(female_heights$mother)
+
+predict( r1, newdata = mh )
