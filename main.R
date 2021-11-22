@@ -423,10 +423,25 @@ predict( r1, newdata = mh )
 rm(list=ls())
 library(tidyverse)
 library(Lahman)
+data("Batting")
 
 bat_02 <- Batting %>%
             filter( yearID == 2002 ) %>%
             mutate( pa = AB + BB, singles = (H - X2B - X3B - HR)/pa, bb = BB/pa ) %>%
             filter( pa >= 100 ) %>%
             select( playerID, singles, bb )
+
+averages <- Batting %>%
+  filter( yearID %in% 1999:2001 ) %>%
+  mutate( pa = AB + BB, singles = (H - X2B - X3B - HR)/pa, bb = BB/pa ) %>%
+  filter( pa >= 100 ) %>%
+  group_by( playerID ) %>%
+  summarize(mean_singles = mean( singles ), mean_bb = mean(bb)) %>%
+  select(playerID, mean_singles, mean_bb)
+  
+s <- averages %>% filter(mean_singles > 0.2) %>% nrow(.)
+print(paste("singles", s))
+b <- averages %>% filter(mean_bb > 0.2) %>% nrow(.)
+print(paste("bb", b))
+
 
