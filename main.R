@@ -444,4 +444,20 @@ print(paste("singles", s))
 b <- averages %>% filter(mean_bb > 0.2) %>% nrow(.)
 print(paste("bb", b))
 
+bat_cor <- inner_join( bat_02, averages, on = playerID)
+cor(bat_cor$singles, bat_cor$mean_singles)
+cor(bat_cor$bb, bat_cor$mean_bb)
 
+gg_singles <- ggplot( bat_cor, aes( mean_singles, singles)) +
+          geom_point()
+gg_singles
+
+gg_bb <- ggplot( bat_cor, aes( mean_bb, bb )) +
+         geom_point()
+gg_bb
+
+lm_singles <- lm( data = bat_cor, singles ~ mean_singles )
+lm_singles$coefficients
+
+lm_bb <- lm( data = bat_cor, formula = bb ~ mean_bb )
+lm_bb$coefficient
