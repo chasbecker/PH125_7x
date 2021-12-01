@@ -461,3 +461,34 @@ lm_singles$coefficients
 
 lm_bb <- lm( data = bat_cor, formula = bb ~ mean_bb )
 lm_bb$coefficient
+
+# Section 2: Linear Models 2.3: Tibbles, do, and broom
+
+rm(list=ls())
+library(tidyverse)
+library(Lahman)
+data("Teams")
+
+dat <- Teams %>% filter( yearID %in% 1961:2001 ) %>%
+                 mutate( HR = round(HR/G, 1),
+                         BB = BB/G,
+                         R = R/G ) %>%
+                 select( HR, BB, R ) %>%
+                 filter( HR >= 0.4 & HR <= 1.2 )
+
+dat %>%
+  group_by(HR) %>%
+  summarize( slope = cor( BB,R )*( sd(R)/sd(BB) ) )
+
+dat %>%
+  group_by( HR ) %>%
+  lm( formual = R ~ BB, data = . ) %>%
+  .$coef
+
+dat %>%
+  group_by( HR ) %>%
+  head()
+
+dat %>%
+  group_by( HR ) %>%
+  class()
