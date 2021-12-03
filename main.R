@@ -564,3 +564,23 @@ plt1_dat %>%
     geom_point()
 
 glance( fit_1 )
+
+
+
+# assessment
+
+get_slope <- function(data) {
+  fit <- lm(R ~ BB, data = data)
+  sum.fit <- summary(fit)
+  
+  data.frame(slope = sum.fit$coefficients[2, "Estimate"], 
+             se = sum.fit$coefficients[2, "Std. Error"],
+             pvalue = sum.fit$coefficients[2, "Pr(>|t|)"])
+}
+
+dat %>% group_by(HR) %>% do(get_slope(.))
+
+# con't (screen 2)
+
+
+
