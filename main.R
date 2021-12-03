@@ -492,3 +492,75 @@ dat %>%
 dat %>%
   group_by( HR ) %>%
   class()
+
+Teams
+as_tibble(Teams)
+
+class(Teams[,20])
+class(as_tibble(Teams[,20]))
+class(as_tibble(Teams)$HR)
+Teams$hr
+as_tibble(Teams)$hr
+
+tibble( id=c(1,2,3), func = c(mean, median, sd) )
+
+# con't
+
+str(Teams)
+
+#assigns result to column 'fit'
+dat %>%
+  group_by( HR ) %>%
+  do( fit = lm( formula = R ~ BB, data = . ) )
+
+#no column assignment, throws error
+dat %>%
+  group_by( hr ) %>%
+  do( lm( formula = R ~ BB, data = . ) )
+
+get_slope <- function(data_in){
+  fit <- lm( formula = R ~ BB, data = data_in )
+  data.frame( slope = fit$coefficient[2],
+              se = summary( fit)$coefficient[2,2] )
+}
+
+a_df <- dat %>%
+        group_by( HR ) %>%
+        do(get_slope(.))
+a_df
+
+a_broken_df <- dat %>%
+               group_by( HR ) %>%
+               do( slope = get_slope(.) )
+
+a_broken_df
+
+get_lse <- function(data_in){
+           fit <- lm( formula = R ~ BB, data = data_in )
+           data.frame( term = names( fit$coefficients ),
+                      estimate = fit$coefficients,
+                      se = summary( fit )$coefficient[,2] )
+}
+
+an_lse <- dat %>%
+          group_by( HR ) %>%
+          do(get_lse(.))
+# con't
+
+library( broom )
+fit_1 <- lm( formula = R ~ BB, data = dat )
+tidy( fit_1 )
+tidy( fit_1, conf.int = TRUE )
+
+plt1_dat <- dat %>%
+  group_by( HR ) %>%
+  do( tidy( lm( formula = R ~ BB, data = . ), conf.int = TRUE ) ) %>%
+  filter( term == "BB" ) %>%
+  select( HR, estimate, conf.low, conf.high )
+
+plt1_dat %>%
+  ggplot( aes( HR, y = estimate, ymin = conf.low, ymax = conf.high ) ) +
+    geom_errorbar() +
+    geom_point()
+
+glance( fit_1 )
