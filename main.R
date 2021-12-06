@@ -569,10 +569,9 @@ glance( fit_1 )
 
 # assessment
 
-get_slope <- function(data) {
-  fit <- lm(R ~ BB, data = data)
-  sum.fit <- summary(fit)
-  
+get_slope <- function(dat_in) {
+  fit <- lm( R ~ BB, data = dat_in )
+  sum.fit <- summary( fit )
   data.frame(slope = sum.fit$coefficients[2, "Estimate"], 
              se = sum.fit$coefficients[2, "Std. Error"],
              pvalue = sum.fit$coefficients[2, "Pr(>|t|)"])
@@ -582,5 +581,32 @@ dat %>% group_by(HR) %>% do(get_slope(.))
 
 # con't (screen 2)
 
+# Section 2: Linear Models 2.3: Tibbles, do, and broom ( broom )
 
+rm( list=ls() )
+library( tidyverse )
+library( HistData )
+library(broom)
+data( "GaltonFamilies" )
+set.seed( 1, sample.kind = "Rounding" )
 
+galton <- GaltonFamilies %>%
+           group_by( family, gender ) %>%
+           sample_n( 1 ) %>%
+           ungroup() %>%
+           gather( parent, parentHeight, father:mother ) %>%
+           mutate( child = ifelse( gender == "female", "daugher", "son" ) ) %>%
+           unite( pair, c( "parent", "child" ) )
+
+galton
+
+count( galton %>% group_by( pair ) )
+
+galton %>%
+  group_by( pair ) %>%
+  summarize( correlation = cor( parentHeight, childHeight ) )
+
+Q10a <- galton %>%
+        group_by( pair ) %>%
+        do( tidy( lm( formula = childHeight ~ parentHeight, data = . ), conf.int = TRUE ) )
+Q10a
