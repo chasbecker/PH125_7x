@@ -610,3 +610,86 @@ Q10a <- galton %>%
         group_by( pair ) %>%
         do( tidy( lm( formula = childHeight ~ parentHeight, data = . ), conf.int = TRUE ) )
 Q10a
+
+# Section 2.4
+
+rm( list = ls() )
+library( tidyverse )
+library( broom )
+library( Lahman )
+data( "Teams" )
+
+fit_1 <- Teams %>%
+       filter( yearID %in% 1961:2001 ) %>%
+       mutate( BB = BB/G, HR = HR/G, R = R/G ) %>%
+       lm( formula = R ~ BB + HR, data = . )
+
+tidy( fit_1, conf.int =TRUE )
+
+fit_2 <- Teams %>%
+         filter( yearID %in% 1961:2001 ) %>%
+         mutate( BB = BB/G,
+                 singles = (H-X2B-X3B-HR)/G,
+                 doubles = X2B/G,
+                 triples = X3B/G,
+                 HR = HR/G,
+                 R = R/G ) %>%
+         lm( formula = R ~ BB + singles + doubles + triples + HR, data = . )
+coefs <- tidy( fit_2, conf.int = TRUE )
+coefs
+
+Teams %>%
+  filter( yearID %in% 2002 ) %>%
+  mutate( BB = BB/G,
+          singles = (H-X2B-X3B-HR)/G,
+          doubles = X2B/G,
+          triples = X3B/G,
+          HR = HR/G,
+          R = R/G ) %>%
+  mutate( R_hat = predict( fit_2, newdata = . ) ) %>%
+  ggplot( aes( R_hat, R, label = teamID )) +
+  geom_text( nudge_x = 0.1, cex = 2 ) +
+  geom_abline()
+
+pa_per_game <- Batting %>%
+               filter( yearID == 2002 ) %>%
+               group_by( teamID ) %>%
+               summarize( pa_per_game = sum( AB + BB )/max( G ) ) %>%
+               pull( pa_per_game ) %>%
+               mean
+pa_per_game
+
+players <- Batting %>%
+           filter( yearID %in% 1999:2001 ) %>%
+           group_by( playerID ) %>%
+           mutate( PA = BB + AB ) %>%
+           summarize( G = sum( PA )/pa_per_game,
+                      BB = sum( BB )/G,
+                      singles = sum( H-X2B-X3B-HR )/G,
+                      doubles = sum( X2B )/G,
+                      triples = sum( X3B )/G,
+                      HR = sum( HR )/G,
+                      AVG = sum( H )/sum( AB ),
+                      PA = sum( PA ) ) %>%
+           filter( PA >= 300 ) %>%
+           select( -G ) %>%
+           mutate( R_hat = predict( fit_2, newdata = . ) )
+players
+
+qplot( R_hat, data = players, geom = "histogram", binwidth = 0.5, color = I("black") )
+
+
+# Building a Better Offensive Metric for Baseball =========================
+
+rm( list = ls() )
+library( tidyverse )
+library( broom )
+library( Lahman )
+data( "Teams" )
+
+fit_1 <- Teams %>%
+           filter( yearID %in% 1961:2001 ) %>%
+           mutate( BB = BB/G, HR = HR/G, R = R/G )%>%
+           lm( R ~ BB + HR, data = . )
+tidy( fit_1, conf.int = TRUE )
+           
